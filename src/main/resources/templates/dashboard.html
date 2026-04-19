@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard — FelicAuth</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">FelicAuth</a>
+    <div class="navbar-nav">
+        <a class="nav-link active" th:href="@{/web/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/web/profile}">Profile</a>
+        <span class="nav-link" style="color:#1e293b; font-weight:600;"
+              th:text="${userName}">User</span>
+        <form th:action="@{/web/logout}" method="post" style="margin:0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <p class="page-title">Dashboard</p>
+
+    <!-- Summary cards -->
+    <div class="card-grid">
+        <div class="card">
+            <div class="card-label">Logged in as</div>
+            <div class="card-value small" th:text="${userEmail}">—</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Display name</div>
+            <div class="card-value" th:text="${userName}">—</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Roles</div>
+            <div class="card-value" style="margin-top:.5rem;">
+                <span class="badge" th:each="role : ${roles}" th:text="${role.name()}">ROLE</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-label">Member since</div>
+            <div class="card-value small" th:text="${#temporals.format(memberSince, 'dd MMM yyyy')}">—</div>
+        </div>
+    </div>
+
+    <!-- Account details table -->
+    <div class="card">
+        <p class="section-title">Account details</p>
+        <table class="info-table">
+            <tr>
+                <th>Full name</th>
+                <td th:text="${userName}">—</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td th:text="${userEmail}">—</td>
+            </tr>
+            <tr>
+                <th>Roles</th>
+                <td>
+                    <span class="badge" th:each="role : ${roles}" th:text="${role.name()}">ROLE</span>
+                </td>
+            </tr>
+            <tr>
+                <th>Account status</th>
+                <td><span class="badge" style="background:#dcfce7;color:#16a34a;">Active</span></td>
+            </tr>
+            <tr>
+                <th>Member since</th>
+                <td th:text="${#temporals.format(memberSince, 'dd MMMM yyyy HH:mm')} + ' UTC'">—</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
+

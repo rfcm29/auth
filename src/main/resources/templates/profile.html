@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Profile — FelicAuth</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">FelicAuth</a>
+    <div class="navbar-nav">
+        <a class="nav-link" th:href="@{/web/dashboard}">Dashboard</a>
+        <a class="nav-link active" th:href="@{/web/profile}">Profile</a>
+        <span class="nav-link" style="color:#1e293b; font-weight:600;"
+              th:text="${userName}">User</span>
+        <form th:action="@{/web/logout}" method="post" style="margin:0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <p class="page-title">My Profile</p>
+
+    <div class="card" style="max-width:560px;">
+        <p class="section-title">Personal information</p>
+        <table class="info-table">
+            <tr>
+                <th>Full name</th>
+                <td th:text="${userName}">—</td>
+            </tr>
+            <tr>
+                <th>Email address</th>
+                <td th:text="${userEmail}">—</td>
+            </tr>
+            <tr>
+                <th>Roles</th>
+                <td>
+                    <span class="badge" th:each="role : ${roles}" th:text="${role.name()}">ROLE</span>
+                </td>
+            </tr>
+            <tr>
+                <th>Joined</th>
+                <td th:text="${#temporals.format(memberSince, 'dd MMMM yyyy')}">—</td>
+            </tr>
+            <tr>
+                <th>Account status</th>
+                <td><span class="badge" style="background:#dcfce7;color:#16a34a;">Active</span></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
+
