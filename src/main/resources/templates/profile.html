@@ -11,12 +11,12 @@
 <nav class="navbar">
     <a class="navbar-brand" th:href="@{/}">FelicAuth</a>
     <div class="navbar-nav">
-        <a class="nav-link" th:href="@{/web/dashboard}">Dashboard</a>
-        <a class="nav-link active" th:href="@{/web/profile}">Profile</a>
+        <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+        <a class="nav-link active" th:href="@{/profile}">Profile</a>
         <a class="nav-link" th:href="@{/transactions}">Transactions</a>
         <span class="nav-link" style="color:#1e293b; font-weight:600;"
               th:text="${userName}">User</span>
-        <form th:action="@{/web/logout}" method="post" style="margin:0;">
+        <form th:action="@{/logout}" method="post" style="margin:0;">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <button type="submit" class="logout-btn">Logout</button>
         </form>
