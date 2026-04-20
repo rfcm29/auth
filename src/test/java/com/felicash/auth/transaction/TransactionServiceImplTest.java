@@ -29,10 +29,14 @@ class TransactionServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
     @InjectMocks
     private TransactionServiceImpl transactionService;
 
     private User testUser;
+    private Category testCategory;
     private CreateTransactionRequest createRequest;
     private FinancialTransaction savedTransaction;
 
@@ -45,23 +49,26 @@ class TransactionServiceImplTest {
                 .password("password")
                 .build();
 
+        testCategory = Category.builder()
+                .id(UUID.randomUUID())
+                .name("Food")
+                .type(TransactionCategoryType.EXPENSE)
+                .user(testUser)
+                .build();
+
         createRequest = new CreateTransactionRequest(
                 new BigDecimal("100.00"),
-                "USD",
                 LocalDate.of(2024, 1, 15),
-                "TXN-001",
-                "John Doe",
-                TransactionCategory.EXPENSE
+                "Grocery shopping",
+                testCategory.getId()
         );
 
         savedTransaction = FinancialTransaction.builder()
                 .id(UUID.randomUUID())
                 .amount(createRequest.amount())
-                .currency(createRequest.currency())
                 .transactionDate(createRequest.transactionDate())
-                .referenceId(createRequest.referenceId())
-                .parties(createRequest.parties())
-                .category(createRequest.category())
+                .description(createRequest.description())
+                .category(testCategory)
                 .user(testUser)
                 .build();
     }
@@ -70,6 +77,7 @@ class TransactionServiceImplTest {
     void createTransaction_Success() {
         // Given
         when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
+        when(categoryRepository.findById(testCategory.getId())).thenReturn(Optional.of(testCategory));
         when(transactionRepository.save(any(FinancialTransaction.class))).thenReturn(savedTransaction);
 
         // When
@@ -78,9 +86,10 @@ class TransactionServiceImplTest {
         // Then
         assertThat(response).isNotNull();
         assertThat(response.amount()).isEqualByComparingTo(createRequest.amount());
-        assertThat(response.currency()).isEqualTo(createRequest.currency());
-        assertThat(response.category()).isEqualTo(createRequest.category());
+        assertThat(response.description()).isEqualTo(createRequest.description());
+        assertThat(response.category().id()).isEqualTo(testCategory.getId());
         verify(userRepository).findByEmail(testUser.getEmail());
+        verify(categoryRepository).findById(testCategory.getId());
         verify(transactionRepository).save(any(FinancialTransaction.class));
     }
 
@@ -97,6 +106,53 @@ class TransactionServiceImplTest {
     }
 
     @Test
+    void createTransaction_CategoryNotFound_ThrowsException() {
+        // Given
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
+        when(categoryRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> transactionService.createTransaction(createRequest, testUser.getEmail()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Category not found");
+        verify(transactionRepository, never()).save(any());
+    }
+
+    @Test
+    void createTransaction_CategoryDoesNotBelongToUser_ThrowsException() {
+        // Given
+        User otherUser = User.builder()
+                .id(UUID.randomUUID())
+                .email("other@example.com")
+                .name("Other User")
+                .password("password")
+                .build();
+
+        Category otherCategory = Category.builder()
+                .id(UUID.randomUUID())
+                .name("Other Category")
+                .type(TransactionCategoryType.EXPENSE)
+                .user(otherUser)
+                .build();
+
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
+        when(categoryRepository.findById(otherCategory.getId())).thenReturn(Optional.of(otherCategory));
+
+        CreateTransactionRequest request = new CreateTransactionRequest(
+                new BigDecimal("100.00"),
+                LocalDate.of(2024, 1, 15),
+                "Test",
+                otherCategory.getId()
+        );
+
+        // When & Then
+        assertThatThrownBy(() -> transactionService.createTransaction(request, testUser.getEmail()))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessage("You do not have permission to use this category");
+        verify(transactionRepository, never()).save(any());
+    }
+
+    @Test
     void getAllTransactionsByUser_Success() {
         // Given
         List<FinancialTransaction> transactions = List.of(savedTransaction);
@@ -108,26 +164,26 @@ class TransactionServiceImplTest {
 
         // Then
         assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).referenceId()).isEqualTo("TXN-001");
+        assertThat(responses.get(0).description()).isEqualTo("Grocery shopping");
         verify(transactionRepository).findByUserOrderByTransactionDateDesc(testUser);
     }
 
     @Test
-    void getTransactionsByUserAndCategory_Success() {
+    void getTransactionsByUserAndCategoryType_Success() {
         // Given
         List<FinancialTransaction> transactions = List.of(savedTransaction);
         when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(testUser));
-        when(transactionRepository.findByUserAndCategoryOrderByTransactionDateDesc(testUser, TransactionCategory.EXPENSE))
+        when(transactionRepository.findByUserAndCategoryTypeOrderByTransactionDateDesc(testUser, TransactionCategoryType.EXPENSE))
                 .thenReturn(transactions);
 
         // When
-        List<TransactionResponse> responses = transactionService.getTransactionsByUserAndCategory(
-                testUser.getEmail(), TransactionCategory.EXPENSE);
+        List<TransactionResponse> responses = transactionService.getTransactionsByUserAndCategoryType(
+                testUser.getEmail(), TransactionCategoryType.EXPENSE);
 
         // Then
         assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).category()).isEqualTo(TransactionCategory.EXPENSE);
-        verify(transactionRepository).findByUserAndCategoryOrderByTransactionDateDesc(testUser, TransactionCategory.EXPENSE);
+        assertThat(responses.get(0).category().type()).isEqualTo(TransactionCategoryType.EXPENSE);
+        verify(transactionRepository).findByUserAndCategoryTypeOrderByTransactionDateDesc(testUser, TransactionCategoryType.EXPENSE);
     }
 
     @Test

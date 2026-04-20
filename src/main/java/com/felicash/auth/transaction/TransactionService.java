@@ -9,7 +9,7 @@ public interface TransactionService {
 
     List<TransactionResponse> getAllTransactionsByUser(String userEmail);
 
-    List<TransactionResponse> getTransactionsByUserAndCategory(String userEmail, TransactionCategory category);
+    List<TransactionResponse> getTransactionsByUserAndCategoryType(String userEmail, TransactionCategoryType categoryType);
 
     TransactionResponse getTransactionById(UUID id, String userEmail);
 }

@@ -10,9 +10,8 @@ public record TransactionResponse(
         BigDecimal amount,
         String currency,
         LocalDate transactionDate,
-        String referenceId,
-        String parties,
-        TransactionCategory category,
+        String description,
+        CategoryResponse category,
         Instant createdAt
 ) {
     public static TransactionResponse from(FinancialTransaction transaction) {
@@ -21,10 +20,23 @@ public record TransactionResponse(
                 transaction.getAmount(),
                 transaction.getCurrency(),
                 transaction.getTransactionDate(),
-                transaction.getReferenceId(),
-                transaction.getParties(),
-                transaction.getCategory(),
+                transaction.getDescription(),
+                CategoryResponse.from(transaction.getCategory()),
                 transaction.getCreatedAt()
         );
+    }
+
+    public record CategoryResponse(
+            UUID id,
+            String name,
+            TransactionCategoryType type
+    ) {
+        public static CategoryResponse from(Category category) {
+            return new CategoryResponse(
+                    category.getId(),
+                    category.getName(),
+                    category.getType()
+            );
+        }
     }
 }

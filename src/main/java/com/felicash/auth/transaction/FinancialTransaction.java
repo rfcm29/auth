@@ -20,20 +20,17 @@ public class FinancialTransaction {
     private BigDecimal amount;
 
     @Column(nullable = false, length = 3)
-    private String currency;
+    private String currency = "EUR";
 
     @Column(nullable = false)
     private LocalDate transactionDate;
 
-    @Column(nullable = false)
-    private String referenceId;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-    @Column(nullable = false)
-    private String parties;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TransactionCategory category;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -47,14 +44,12 @@ public class FinancialTransaction {
     public FinancialTransaction() {}
 
     public FinancialTransaction(UUID id, BigDecimal amount, String currency, LocalDate transactionDate,
-                                String referenceId, String parties, TransactionCategory category,
-                                User user, Instant createdAt) {
+                                String description, Category category, User user, Instant createdAt) {
         this.id = id;
         this.amount = amount;
-        this.currency = currency;
+        this.currency = currency != null ? currency : "EUR";
         this.transactionDate = transactionDate;
-        this.referenceId = referenceId;
-        this.parties = parties;
+        this.description = description;
         this.category = category;
         this.user = user;
         this.createdAt = createdAt != null ? createdAt : Instant.now();
@@ -67,11 +62,10 @@ public class FinancialTransaction {
     public static final class Builder {
         private UUID id;
         private BigDecimal amount;
-        private String currency;
+        private String currency = "EUR";
         private LocalDate transactionDate;
-        private String referenceId;
-        private String parties;
-        private TransactionCategory category;
+        private String description;
+        private Category category;
         private User user;
         private Instant createdAt = Instant.now();
 
@@ -81,15 +75,14 @@ public class FinancialTransaction {
         public Builder amount(BigDecimal amount)             { this.amount = amount; return this; }
         public Builder currency(String currency)             { this.currency = currency; return this; }
         public Builder transactionDate(LocalDate date)       { this.transactionDate = date; return this; }
-        public Builder referenceId(String referenceId)       { this.referenceId = referenceId; return this; }
-        public Builder parties(String parties)               { this.parties = parties; return this; }
-        public Builder category(TransactionCategory category){ this.category = category; return this; }
+        public Builder description(String description)       { this.description = description; return this; }
+        public Builder category(Category category)           { this.category = category; return this; }
         public Builder user(User user)                       { this.user = user; return this; }
         public Builder createdAt(Instant createdAt)          { this.createdAt = createdAt; return this; }
 
         public FinancialTransaction build() {
-            return new FinancialTransaction(id, amount, currency, transactionDate, referenceId,
-                    parties, category, user, createdAt);
+            return new FinancialTransaction(id, amount, currency, transactionDate, description,
+                    category, user, createdAt);
         }
     }
 
@@ -103,12 +96,10 @@ public class FinancialTransaction {
     public void setCurrency(String currency)                 { this.currency = currency; }
     public LocalDate getTransactionDate()                    { return transactionDate; }
     public void setTransactionDate(LocalDate transactionDate){ this.transactionDate = transactionDate; }
-    public String getReferenceId()                           { return referenceId; }
-    public void setReferenceId(String referenceId)           { this.referenceId = referenceId; }
-    public String getParties()                               { return parties; }
-    public void setParties(String parties)                   { this.parties = parties; }
-    public TransactionCategory getCategory()                 { return category; }
-    public void setCategory(TransactionCategory category)    { this.category = category; }
+    public String getDescription()                           { return description; }
+    public void setDescription(String description)           { this.description = description; }
+    public Category getCategory()                            { return category; }
+    public void setCategory(Category category)               { this.category = category; }
     public User getUser()                                    { return user; }
     public void setUser(User user)                           { this.user = user; }
     public Instant getCreatedAt()                            { return createdAt; }
