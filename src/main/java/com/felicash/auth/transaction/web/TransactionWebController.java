@@ -1,9 +1,6 @@
 package com.felicash.auth.transaction.web;
 
-import com.felicash.auth.transaction.CreateTransactionRequest;
-import com.felicash.auth.transaction.TransactionCategory;
-import com.felicash.auth.transaction.TransactionResponse;
-import com.felicash.auth.transaction.TransactionService;
+import com.felicash.auth.transaction.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -19,31 +16,33 @@ import java.util.List;
 public class TransactionWebController {
 
     private final TransactionService transactionService;
+    private final CategoryService categoryService;
 
-    public TransactionWebController(TransactionService transactionService) {
+    public TransactionWebController(TransactionService transactionService, CategoryService categoryService) {
         this.transactionService = transactionService;
+        this.categoryService = categoryService;
     }
 
     /**
-     * Display all transactions with optional category filter
+     * Display all transactions with optional category type filter
      */
     @GetMapping
     public String listTransactions(
-            @RequestParam(required = false) TransactionCategory category,
+            @RequestParam(required = false) TransactionCategoryType categoryType,
             @AuthenticationPrincipal UserDetails userDetails,
             Model model) {
         List<TransactionResponse> transactions;
 
-        if (category != null) {
-            transactions = transactionService.getTransactionsByUserAndCategory(
-                    userDetails.getUsername(), category);
+        if (categoryType != null) {
+            transactions = transactionService.getTransactionsByUserAndCategoryType(
+                    userDetails.getUsername(), categoryType);
         } else {
             transactions = transactionService.getAllTransactionsByUser(userDetails.getUsername());
         }
 
         model.addAttribute("transactions", transactions);
-        model.addAttribute("selectedCategory", category);
-        model.addAttribute("categories", TransactionCategory.values());
+        model.addAttribute("selectedCategoryType", categoryType);
+        model.addAttribute("categoryTypes", TransactionCategoryType.values());
 
         return "transactions";
     }
@@ -52,8 +51,9 @@ public class TransactionWebController {
      * Display form to create new transaction
      */
     @GetMapping("/new")
-    public String newTransactionForm(Model model) {
-        model.addAttribute("categories", TransactionCategory.values());
+    public String newTransactionForm(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        List<Category> categories = categoryService.getAllCategoriesByUser(userDetails.getUsername());
+        model.addAttribute("categories", categories);
         return "create-transaction";
     }
 

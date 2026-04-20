@@ -15,11 +15,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final FinancialTransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     public TransactionServiceImpl(FinancialTransactionRepository transactionRepository,
-                                  UserRepository userRepository) {
+                                  UserRepository userRepository,
+                                  CategoryRepository categoryRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -27,13 +30,19 @@ public class TransactionServiceImpl implements TransactionService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+        // Verify category belongs to user
+        if (!category.getUser().getEmail().equals(userEmail)) {
+            throw new AccessDeniedException("You do not have permission to use this category");
+        }
+
         FinancialTransaction transaction = FinancialTransaction.builder()
                 .amount(request.amount())
-                .currency(request.currency())
                 .transactionDate(request.transactionDate())
-                .referenceId(request.referenceId())
-                .parties(request.parties())
-                .category(request.category())
+                .description(request.description())
+                .category(category)
                 .user(user)
                 .build();
 
@@ -55,11 +64,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TransactionResponse> getTransactionsByUserAndCategory(String userEmail, TransactionCategory category) {
+    public List<TransactionResponse> getTransactionsByUserAndCategoryType(String userEmail, TransactionCategoryType categoryType) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        return transactionRepository.findByUserAndCategoryOrderByTransactionDateDesc(user, category)
+        return transactionRepository.findByUserAndCategoryTypeOrderByTransactionDateDesc(user, categoryType)
                 .stream()
                 .map(TransactionResponse::from)
                 .toList();

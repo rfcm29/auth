@@ -1,7 +1,7 @@
 package com.felicash.auth.transaction.api;
 
 import com.felicash.auth.transaction.CreateTransactionRequest;
-import com.felicash.auth.transaction.TransactionCategory;
+import com.felicash.auth.transaction.TransactionCategoryType;
 import com.felicash.auth.transaction.TransactionResponse;
 import com.felicash.auth.transaction.TransactionService;
 import jakarta.validation.Valid;
@@ -41,21 +41,21 @@ public class TransactionController {
 
     /**
      * Get all transactions for authenticated user
-     * Optionally filter by category
+     * Optionally filter by category type
      *
-     * @param category Optional category filter (EXPENSE or INCOME)
+     * @param categoryType Optional category type filter (EXPENSE or INCOME)
      * @param userDetails Authenticated user
      * @return List of transactions
      */
     @GetMapping
     public ResponseEntity<List<TransactionResponse>> getTransactions(
-            @RequestParam(required = false) TransactionCategory category,
+            @RequestParam(required = false) TransactionCategoryType categoryType,
             @AuthenticationPrincipal UserDetails userDetails) {
         List<TransactionResponse> transactions;
 
-        if (category != null) {
-            transactions = transactionService.getTransactionsByUserAndCategory(
-                    userDetails.getUsername(), category);
+        if (categoryType != null) {
+            transactions = transactionService.getTransactionsByUserAndCategoryType(
+                    userDetails.getUsername(), categoryType);
         } else {
             transactions = transactionService.getAllTransactionsByUser(userDetails.getUsername());
         }
