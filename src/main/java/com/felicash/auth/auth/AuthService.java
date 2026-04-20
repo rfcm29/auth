@@ -1,6 +1,6 @@
 package com.felicash.auth.auth;
 
-import com.felicash.auth.token.TokenRotationService;
+import com.felicash.auth.auth.token.TokenRotationService;
 import com.felicash.auth.user.User;
 import com.felicash.auth.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;

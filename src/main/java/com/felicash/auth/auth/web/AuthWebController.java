@@ -1,8 +1,7 @@
-package com.felicash.auth.web;
+package com.felicash.auth.auth.web;
 
 import com.felicash.auth.auth.RegisterRequest;
 import com.felicash.auth.auth.UserRegistrationFacade;
-import com.felicash.auth.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,28 +14,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/web")
-public class WebController {
+public class AuthWebController {
 
     private final UserRegistrationFacade userRegistrationFacade;
     private final AuthenticationManager authenticationManager;
 
-    public WebController(UserRegistrationFacade userRegistrationFacade,
-                         AuthenticationManager authenticationManager) {
+    public AuthWebController(UserRegistrationFacade userRegistrationFacade,
+                             AuthenticationManager authenticationManager) {
         this.userRegistrationFacade = userRegistrationFacade;
         this.authenticationManager = authenticationManager;
-    }
-
-    // ─── Root redirect ─────────────────────────────────────────────────────────
-
-    @GetMapping
-    public String webRoot() {
-        return "redirect:/web/dashboard";
     }
 
     // ─── Login ─────────────────────────────────────────────────────────────────
@@ -71,7 +61,6 @@ public class WebController {
         try {
             userRegistrationFacade.register(new RegisterRequest(name, email, password));
 
-            // Auto-login after successful registration
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password)
             );
@@ -80,40 +69,14 @@ public class WebController {
             SecurityContextHolder.setContext(ctx);
             new HttpSessionSecurityContextRepository().saveContext(ctx, request, response);
 
-            return "redirect:/web/dashboard";
+            return "redirect:/dashboard";
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-            return "redirect:/web/register";
+            return "redirect:/register";
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("errorMessage", "Registration failed. Please try again.");
-            return "redirect:/web/register";
+            return "redirect:/register";
         }
-    }
-
-    // ─── Dashboard ─────────────────────────────────────────────────────────────
-
-    @GetMapping("/dashboard")
-    public String dashboard(Authentication authentication, Model model) {
-        if (authentication != null && authentication.getPrincipal() instanceof User user) {
-            model.addAttribute("userName", user.getName());
-            model.addAttribute("userEmail", user.getEmail());
-            model.addAttribute("roles", user.getRoles());
-            model.addAttribute("memberSince", user.getCreatedAt());
-        }
-        return "dashboard";
-    }
-
-    // ─── Profile ───────────────────────────────────────────────────────────────
-
-    @GetMapping("/profile")
-    public String profile(Authentication authentication, Model model) {
-        if (authentication != null && authentication.getPrincipal() instanceof User user) {
-            model.addAttribute("userName", user.getName());
-            model.addAttribute("userEmail", user.getEmail());
-            model.addAttribute("roles", user.getRoles());
-            model.addAttribute("memberSince", user.getCreatedAt());
-        }
-        return "profile";
     }
 }
 

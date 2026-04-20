@@ -1,5 +1,10 @@
-package com.felicash.auth.auth;
+package com.felicash.auth.auth.api;
 
+import com.felicash.auth.auth.AuthResponse;
+import com.felicash.auth.auth.AuthService;
+import com.felicash.auth.auth.LoginRequest;
+import com.felicash.auth.auth.RefreshRequest;
+import com.felicash.auth.auth.RegisterRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

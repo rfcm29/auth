@@ -1,8 +1,9 @@
-package com.felicash.auth.token;
+package com.felicash.auth.auth.token;
 
 import com.felicash.auth.auth.AuthResponse;
 import com.felicash.auth.security.JwtService;
 import com.felicash.auth.user.User;
+import com.felicash.auth.user.UserPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +25,7 @@ class TokenRotationServiceImpl implements TokenRotationService {
     @Override
     @Transactional
     public AuthResponse issueTokenPair(User user) {
-        String accessToken = jwtService.generateAccessToken(user);
+        String accessToken = jwtService.generateAccessToken(new UserPrincipal(user));
         String rawRefreshToken = UUID.randomUUID().toString();
 
         RefreshToken refreshToken = RefreshToken.builder()

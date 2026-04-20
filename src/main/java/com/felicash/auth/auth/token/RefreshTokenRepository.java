@@ -1,4 +1,4 @@
-package com.felicash.auth.token;
+package com.felicash.auth.auth.token;
 
 import com.felicash.auth.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

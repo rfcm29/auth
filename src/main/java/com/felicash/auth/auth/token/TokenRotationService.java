@@ -1,4 +1,4 @@
-package com.felicash.auth.token;
+package com.felicash.auth.auth.token;
 
 import com.felicash.auth.auth.AuthResponse;
 import com.felicash.auth.user.User;

@@ -1,4 +1,4 @@
-package com.felicash.auth.web;
+package com.felicash.auth.shared;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,7 +8,7 @@ public class RootController {
 
     @GetMapping("/")
     public String root() {
-        return "redirect:/web/login";
+        return "redirect:/login";
     }
 }
 

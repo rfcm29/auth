@@ -64,24 +64,24 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/web/**", "/", "/css/**", "/js/**")
+                .securityMatcher("/", "/login", "/register", "/dashboard", "/profile", "/logout", "/css/**", "/js/**")
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/web/login", "/web/register", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/web/**").authenticated()
+                        .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/web/login")
-                        .loginProcessingUrl("/web/login")
-                        .defaultSuccessUrl("/web/dashboard", true)
-                        .failureUrl("/web/login?error=true")
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/dashboard", true)
+                        .failureUrl("/login?error=true")
                         .usernameParameter("email")
                         .passwordParameter("password")
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/web/logout")
-                        .logoutSuccessUrl("/web/login?logout=true")
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                         .permitAll()
