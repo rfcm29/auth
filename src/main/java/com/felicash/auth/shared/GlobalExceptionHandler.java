@@ -1,6 +1,5 @@
-package com.felicash.auth.exception;
+package com.felicash.auth.shared;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.BadCredentialsException;

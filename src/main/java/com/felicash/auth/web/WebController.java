@@ -1,8 +1,8 @@
-package com.felicash.auth.controller;
+package com.felicash.auth.web;
 
-import com.felicash.auth.domain.User;
-import com.felicash.auth.dto.RegisterRequest;
-import com.felicash.auth.service.AuthService;
+import com.felicash.auth.auth.RegisterRequest;
+import com.felicash.auth.auth.UserRegistrationFacade;
+import com.felicash.auth.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,11 +23,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/web")
 public class WebController {
 
-    private final AuthService authService;
+    private final UserRegistrationFacade userRegistrationFacade;
     private final AuthenticationManager authenticationManager;
 
-    public WebController(AuthService authService, AuthenticationManager authenticationManager) {
-        this.authService = authService;
+    public WebController(UserRegistrationFacade userRegistrationFacade,
+                         AuthenticationManager authenticationManager) {
+        this.userRegistrationFacade = userRegistrationFacade;
         this.authenticationManager = authenticationManager;
     }
 
@@ -68,7 +69,7 @@ public class WebController {
                            HttpServletResponse response,
                            RedirectAttributes redirectAttributes) {
         try {
-            authService.register(new RegisterRequest(name, email, password));
+            userRegistrationFacade.register(new RegisterRequest(name, email, password));
 
             // Auto-login after successful registration
             Authentication auth = authenticationManager.authenticate(

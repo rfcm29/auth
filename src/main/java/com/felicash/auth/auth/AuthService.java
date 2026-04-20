@@ -1,50 +1,35 @@
-package com.felicash.auth.service;
+package com.felicash.auth.auth;
 
-import com.felicash.auth.config.JwtProperties;
-import com.felicash.auth.domain.RefreshToken;
-import com.felicash.auth.domain.User;
-import com.felicash.auth.dto.AuthResponse;
-import com.felicash.auth.dto.LoginRequest;
-import com.felicash.auth.dto.RefreshRequest;
-import com.felicash.auth.dto.RegisterRequest;
-import com.felicash.auth.repository.RefreshTokenRepository;
-import com.felicash.auth.repository.UserRepository;
-import com.felicash.auth.security.JwtService;
+import com.felicash.auth.token.TokenRotationService;
+import com.felicash.auth.user.User;
+import com.felicash.auth.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.UUID;
-
 @Service
-public class AuthService {
+public class AuthService implements UserRegistrationFacade {
 
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private final TokenRotationService tokenRotationService;
     private final AuthenticationManager authenticationManager;
-    private final JwtProperties jwtProperties;
 
     public AuthService(UserRepository userRepository,
-                       RefreshTokenRepository refreshTokenRepository,
                        PasswordEncoder passwordEncoder,
-                       JwtService jwtService,
-                       AuthenticationManager authenticationManager,
-                       JwtProperties jwtProperties) {
+                       TokenRotationService tokenRotationService,
+                       AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
+        this.tokenRotationService = tokenRotationService;
         this.authenticationManager = authenticationManager;
-        this.jwtProperties = jwtProperties;
     }
 
     // ─── Register ──────────────────────────────────────────────────────────────
 
+    @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
@@ -58,7 +43,7 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-        return issueTokenPair(user);
+        return tokenRotationService.issueTokenPair(user);
     }
 
     // ─── Login ─────────────────────────────────────────────────────────────────
@@ -73,51 +58,23 @@ public class AuthService {
                 .orElseThrow(() -> new IllegalStateException("User not found after authentication"));
 
         // Revoke all previous refresh tokens (single-session security)
-        refreshTokenRepository.revokeAllUserTokens(user);
+        tokenRotationService.revokeAllTokensForUser(user);
 
-        return issueTokenPair(user);
+        return tokenRotationService.issueTokenPair(user);
     }
 
     // ─── Refresh ───────────────────────────────────────────────────────────────
 
     @Transactional
     public AuthResponse refresh(RefreshRequest request) {
-        RefreshToken storedToken = refreshTokenRepository.findByToken(request.refreshToken())
-                .orElseThrow(() -> new IllegalArgumentException("Refresh token not found"));
-
-        if (!storedToken.isValid()) {
-            throw new IllegalArgumentException("Refresh token is expired or revoked");
-        }
-
-        // Rotate: revoke current token, issue a fresh pair
-        storedToken.setRevoked(true);
-        refreshTokenRepository.save(storedToken);
-
-        return issueTokenPair(storedToken.getUser());
+        return tokenRotationService.rotateToken(request.refreshToken());
     }
 
     // ─── Logout ────────────────────────────────────────────────────────────────
 
     @Transactional
     public void logout(String email) {
-        userRepository.findByEmail(email).ifPresent(refreshTokenRepository::revokeAllUserTokens);
-    }
-
-    // ─── Helpers ───────────────────────────────────────────────────────────────
-
-    private AuthResponse issueTokenPair(User user) {
-        String accessToken = jwtService.generateAccessToken(user);
-        String rawRefreshToken = UUID.randomUUID().toString();
-
-        RefreshToken refreshToken = RefreshToken.builder()
-                .token(rawRefreshToken)
-                .user(user)
-                .expiresAt(Instant.now().plusMillis(jwtProperties.getRefreshTokenExpiration()))
-                .build();
-
-        refreshTokenRepository.save(refreshToken);
-
-        return AuthResponse.of(accessToken, rawRefreshToken);
+        userRepository.findByEmail(email).ifPresent(tokenRotationService::revokeAllTokensForUser);
     }
 }
 

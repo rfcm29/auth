@@ -1,7 +1,6 @@
-package com.felicash.auth.repository;
+package com.felicash.auth.token;
 
-import com.felicash.auth.domain.RefreshToken;
-import com.felicash.auth.domain.User;
+import com.felicash.auth.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
+interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
     Optional<RefreshToken> findByToken(String token);
 
     @Modifying

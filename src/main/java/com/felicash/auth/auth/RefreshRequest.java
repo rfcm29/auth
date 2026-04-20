@@ -1,4 +1,4 @@
-package com.felicash.auth.dto;
+package com.felicash.auth.auth;
 
 import jakarta.validation.constraints.NotBlank;
 

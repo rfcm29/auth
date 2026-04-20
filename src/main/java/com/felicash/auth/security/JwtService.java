@@ -1,6 +1,6 @@
 package com.felicash.auth.security;
 
-import com.felicash.auth.config.JwtProperties;
+// JwtProperties is in the same package — no import needed
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,10 @@ public class JwtService {
     }
 
     // ─── Access Token ──────────────────────────────────────────────────────────
+
+    public Instant generateRefreshTokenExpiry() {
+        return Instant.now().plusMillis(jwtProperties.getRefreshTokenExpiration());
+    }
 
     public String generateAccessToken(UserDetails userDetails) {
         List<String> roles = userDetails.getAuthorities().stream()

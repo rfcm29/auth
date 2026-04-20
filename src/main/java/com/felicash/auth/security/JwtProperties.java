@@ -1,11 +1,11 @@
-package com.felicash.auth.config;
+package com.felicash.auth.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "app.security.jwt")
-public class JwtProperties {
+class JwtProperties {
 
     private String secret;
     private long accessTokenExpiration;

@@ -1,4 +1,4 @@
-package com.felicash.auth.controller;
+package com.felicash.auth.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,6 +1,5 @@
-package com.felicash.auth.repository;
+package com.felicash.auth.user;
 
-import com.felicash.auth.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

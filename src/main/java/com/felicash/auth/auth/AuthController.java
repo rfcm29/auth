@@ -1,10 +1,5 @@
-package com.felicash.auth.controller;
+package com.felicash.auth.auth;
 
-import com.felicash.auth.dto.AuthResponse;
-import com.felicash.auth.dto.LoginRequest;
-import com.felicash.auth.dto.RefreshRequest;
-import com.felicash.auth.dto.RegisterRequest;
-import com.felicash.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

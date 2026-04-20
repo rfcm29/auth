@@ -1,4 +1,4 @@
-package com.felicash.auth.config;
+package com.felicash.auth.web;
 
 import org.h2.server.web.JakartaWebServlet;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;

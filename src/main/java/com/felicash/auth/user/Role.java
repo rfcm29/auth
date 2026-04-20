@@ -1,4 +1,4 @@
-package com.felicash.auth.domain;
+package com.felicash.auth.user;
 
 public enum Role {
     ROLE_USER,

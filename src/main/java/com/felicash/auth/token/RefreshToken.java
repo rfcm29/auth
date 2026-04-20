@@ -1,5 +1,6 @@
-package com.felicash.auth.domain;
+package com.felicash.auth.token;
 
+import com.felicash.auth.user.User;
 import jakarta.persistence.*;
 
 import java.time.Instant;
