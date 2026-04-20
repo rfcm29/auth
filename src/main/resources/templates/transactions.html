@@ -75,8 +75,8 @@
                     <td th:text="${txn.parties}">—</td>
                     <td>
                         <span class="badge"
-                              th:text="${txn.category.name()}"
-                              th:style="${txn.category.name() == 'EXPENSE' ? 'background:#fee2e2;color:#dc2626;' : 'background:#dcfce7;color:#16a34a;'}">
+                              th:text="${txn.category.name}"
+                              th:style="${txn.category.type.name() == 'EXPENSE' ? 'background:#fee2e2;color:#dc2626;' : 'background:#dcfce7;color:#16a34a;'}">
                             CATEGORY
                         </span>
                     </td>

@@ -7,6 +7,8 @@ import java.util.UUID;
 
 public record TransactionResponse(
         UUID id,
+        String referenceId,
+        String parties,
         BigDecimal amount,
         String currency,
         LocalDate transactionDate,
@@ -15,8 +17,17 @@ public record TransactionResponse(
         Instant createdAt
 ) {
     public static TransactionResponse from(FinancialTransaction transaction) {
+        UUID txId = transaction.getId();
+        String ref = txId != null
+                ? "TXN-" + txId.toString().substring(0, 8).toUpperCase()
+                : "TXN-UNKNOWN";
+        String parties = transaction.getDescription() != null
+                ? transaction.getDescription()
+                : "—";
         return new TransactionResponse(
-                transaction.getId(),
+                txId,
+                ref,
+                parties,
                 transaction.getAmount(),
                 transaction.getCurrency(),
                 transaction.getTransactionDate(),

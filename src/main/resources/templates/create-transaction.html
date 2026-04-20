@@ -39,12 +39,12 @@
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
             <div class="form-group">
-                <label for="category">Category *</label>
-                <select id="category" name="category" class="form-control" required>
+                <label for="categoryId">Category *</label>
+                <select id="categoryId" name="categoryId" class="form-control" required>
                     <option value="">Select category</option>
                     <option th:each="cat : ${categories}"
-                            th:value="${cat.name()}"
-                            th:text="${cat.name()}">CATEGORY</option>
+                            th:value="${cat.id}"
+                            th:text="${cat.name} + ' (' + ${cat.type} + ')'">CATEGORY</option>
                 </select>
             </div>
 
@@ -55,37 +55,15 @@
             </div>
 
             <div class="form-group">
-                <label for="currency">Currency *</label>
-                <input type="text" id="currency" name="currency" class="form-control"
-                       maxlength="3" pattern="[A-Z]{3}" placeholder="USD" required
-                       style="text-transform:uppercase;"/>
-                <small style="font-size:.8rem; color:var(--muted); margin-top:.25rem; display:block;">
-                    3-letter ISO currency code (e.g., USD, EUR, GBP)
-                </small>
-            </div>
-
-            <div class="form-group">
                 <label for="transactionDate">Transaction Date *</label>
                 <input type="date" id="transactionDate" name="transactionDate"
                        class="form-control" required max="" />
             </div>
 
             <div class="form-group">
-                <label for="referenceId">Reference ID *</label>
-                <input type="text" id="referenceId" name="referenceId" class="form-control"
-                       placeholder="TXN-2024-001" required/>
-                <small style="font-size:.8rem; color:var(--muted); margin-top:.25rem; display:block;">
-                    A unique identifier for this transaction
-                </small>
-            </div>
-
-            <div class="form-group">
-                <label for="parties">Parties Involved *</label>
-                <input type="text" id="parties" name="parties" class="form-control"
-                       placeholder="John Doe, ABC Corp" required/>
-                <small style="font-size:.8rem; color:var(--muted); margin-top:.25rem; display:block;">
-                    Names of parties involved in the transaction
-                </small>
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" class="form-control"
+                       placeholder="Optional description"/>
             </div>
 
             <button type="submit" class="btn-primary">Create Transaction</button>
@@ -96,11 +74,6 @@
 <script>
     // Set max date to today for transaction date
     document.getElementById('transactionDate').max = new Date().toISOString().split('T')[0];
-
-    // Auto-uppercase currency input
-    document.getElementById('currency').addEventListener('input', function(e) {
-        e.target.value = e.target.value.toUpperCase();
-    });
 </script>
 
 </body>
