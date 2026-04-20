@@ -64,7 +64,7 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/", "/login", "/register", "/dashboard", "/profile", "/logout", "/css/**", "/js/**")
+                .securityMatcher("/", "/login", "/register", "/dashboard", "/profile", "/logout", "/transactions/**", "/css/**", "/js/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/").permitAll()
