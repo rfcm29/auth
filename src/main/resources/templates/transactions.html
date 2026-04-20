@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Transactions — FelicAuth</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}"/>
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" th:href="@{/}">FelicAuth</a>
+    <div class="navbar-nav">
+        <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+        <a class="nav-link" th:href="@{/profile}">Profile</a>
+        <a class="nav-link active" th:href="@{/transactions}">Transactions</a>
+        <span class="nav-link" style="color:#1e293b; font-weight:600;"
+              th:text="${#authentication.principal.username}">User</span>
+        <form th:action="@{/logout}" method="post" style="margin:0;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <p class="page-title">Financial Transactions</p>
+        <a th:href="@{/transactions/new}" class="btn-nav">+ New Transaction</a>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <!-- Filter by Category -->
+    <div class="card" style="margin-bottom:1.5rem;">
+        <div style="display:flex; gap:1rem; align-items:center;">
+            <span style="font-weight:600; font-size:.9rem;">Filter by category:</span>
+            <a th:href="@{/transactions}"
+               th:classappend="${selectedCategory == null} ? 'badge' : 'badge-outline'"
+               style="text-decoration:none; cursor:pointer;">All</a>
+            <a th:href="@{/transactions(category='EXPENSE')}"
+               th:classappend="${selectedCategory?.name() == 'EXPENSE'} ? 'badge' : 'badge-outline'"
+               style="text-decoration:none; cursor:pointer;">Expenses</a>
+            <a th:href="@{/transactions(category='INCOME')}"
+               th:classappend="${selectedCategory?.name() == 'INCOME'} ? 'badge' : 'badge-outline'"
+               style="text-decoration:none; cursor:pointer;">Income</a>
+        </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="card">
+        <p class="section-title">Transaction History</p>
+
+        <div th:if="${transactions.isEmpty()}" style="text-align:center; padding:2rem; color:var(--muted);">
+            No transactions found. <a th:href="@{/transactions/new}" style="color:var(--primary);">Create one now</a>
+        </div>
+
+        <table th:unless="${transactions.isEmpty()}" class="info-table">
+            <thead>
+                <tr style="background:var(--bg);">
+                    <th>Date</th>
+                    <th>Reference ID</th>
+                    <th>Parties</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="txn : ${transactions}">
+                    <td th:text="${#temporals.format(txn.transactionDate, 'dd MMM yyyy')}">—</td>
+                    <td th:text="${txn.referenceId}" style="font-family:monospace;">—</td>
+                    <td th:text="${txn.parties}">—</td>
+                    <td>
+                        <span class="badge"
+                              th:text="${txn.category.name()}"
+                              th:style="${txn.category.name() == 'EXPENSE' ? 'background:#fee2e2;color:#dc2626;' : 'background:#dcfce7;color:#16a34a;'}">
+                            CATEGORY
+                        </span>
+                    </td>
+                    <td style="font-weight:600; font-family:monospace;"
+                        th:text="${txn.currency + ' ' + #numbers.formatDecimal(txn.amount, 1, 2)}">—</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .badge-outline {
+        display: inline-block;
+        background: transparent;
+        color: var(--muted);
+        border: 1.5px solid var(--border);
+        font-size: .75rem;
+        font-weight: 700;
+        padding: .2rem .65rem;
+        border-radius: 999px;
+        margin: .2rem .1rem;
+        transition: border-color .2s, color .2s;
+    }
+    .badge-outline:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+</style>
+
+</body>
+</html>
